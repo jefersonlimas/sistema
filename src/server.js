@@ -6,6 +6,8 @@ const connectDB = require('./config/database');
 const clientesRoutes = require('./routes/clientes');
 const tiposUnidadeRoutes = require('./routes/tipos-unidade');
 const produtosRoutes = require('./routes/produtos');
+const fornecedoresRoutes = require('./routes/fornecedores');
+const notasFiscaisRoutes = require('./routes/notas-fiscais');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,9 +24,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'views')));
 
 // Rotas da API
-app.use('/api', clientesRoutes);
-app.use('/api', tiposUnidadeRoutes);
-app.use('/api', produtosRoutes);
+app.use('/api/clientes', clientesRoutes);
+app.use('/api/tipos-unidade', tiposUnidadeRoutes);
+app.use('/api/produtos', produtosRoutes);
+app.use('/api/fornecedores', fornecedoresRoutes);
+app.use('/api/notas-fiscais', notasFiscaisRoutes);
 
 // Rota para servir a página principal
 app.get('/', (req, res) => {

@@ -1,6 +1,6 @@
-# Sistema de Cadastro - MVC (Clientes e Produtos)
+# Sistema de Gestão - MVC (Clientes, Produtos, Fornecedores e Notas Fiscais)
 
-Sistema de cadastro desenvolvido com arquitetura **Model-View-Controller (MVC)** utilizando **JavaScript (Node.js)** e banco de dados **MongoDB**. O sistema gerencia **Clientes** e **Produtos** com tabela auxiliar de **Tipos de Unidade**.
+Sistema de gestão desenvolvido com arquitetura **Model-View-Controller (MVC)** utilizando **JavaScript (Node.js)** e banco de dados **MongoDB**. O sistema gerencia **Clientes**, **Produtos**, **Fornecedores**, **Notas Fiscais** e **Tipos de Unidade** com controle automático de estoque.
 
 ## Módulos do Sistema
 
@@ -29,10 +29,43 @@ Sistema de cadastro desenvolvido com arquitetura **Model-View-Controller (MVC)**
 - **Preço de Compra**: Valor pago pelo produto
 - **Preço de Venda**: Valor cobrado pelo produto
 - **Margem de Lucro**: Calculada automaticamente: `((Preço Venda - Preço Compra) / Preço Compra) * 100`
+- **Quantidade em Estoque**: Controle automático via entrada de notas fiscais
 
 #### Tabela Auxiliar - Tipos de Unidade:
 - **Código**: Identificador único (ex: UN, KG, LT, CX, M, PCT)
 - **Descrição**: Descrição completa (ex: Unidade, Quilograma, Litro, Caixa, Metro, Pacote)
+
+### 3. Cadastro de Fornecedores
+
+#### Campos do Fornecedor:
+- **Código**: Identificador único do fornecedor (chave primária)
+- **Nome**: Razão social ou nome fantasia
+- **Endereço**: 
+  - Rua
+  - Número
+  - Complemento
+  - Bairro
+  - Cidade
+  - Estado (UF)
+- **Telefone**: Telefone para contato
+- **Contato**: Nome da pessoa de contato
+
+### 4. Entrada de Mercadorias (Notas Fiscais)
+
+#### Campos da Nota Fiscal:
+- **Número**: Número da nota fiscal
+- **Série**: Série da nota fiscal
+- **Fornecedor**: Relacionamento com cadastro de fornecedores
+- **Data de Emissão**: Data de emissão da NF
+- **Data de Entrada**: Data de recebimento das mercadorias
+- **Valor Total**: Soma dos itens da nota
+- **Itens**: Lista de produtos com quantidade e preço unitário
+
+#### Funcionalidades Especiais:
+- **Atualização Automática de Estoque**: Ao registrar uma nota fiscal, a quantidade de cada produto é somada ao estoque existente
+- **Reversão de Estoque**: Ao excluir uma nota fiscal, o estoque dos produtos é revertido automaticamente
+- **Transações Atômicas**: Uso de transações MongoDB para garantir integridade dos dados
+- **Validação de Duplicidade**: Impede registro de NF com mesmo número e série
 
 ## Estrutura do Projeto
 
@@ -44,17 +77,23 @@ Sistema de cadastro desenvolvido com arquitetura **Model-View-Controller (MVC)**
 │   ├── models/
 │   │   ├── Cliente.js           # Model do Cliente (Schema Mongoose)
 │   │   ├── TipoUnidade.js       # Model de Tipos de Unidade
-│   │   └── Produto.js           # Model do Produto (com cálculo de margem)
+│   │   ├── Produto.js           # Model do Produto (com cálculo de margem e estoque)
+│   │   ├── Fornecedor.js        # Model do Fornecedor
+│   │   └── NotaFiscal.js        # Model de Nota Fiscal (entrada de mercadorias)
 │   ├── views/
-│   │   └── index.html           # Interface web com abas (Clientes, Produtos, Tipos de Unidade)
+│   │   └── index.html           # Interface web com abas (5 módulos)
 │   ├── controllers/
 │   │   ├── ClienteController.js      # Lógica de negócio de Clientes
 │   │   ├── TipoUnidadeController.js  # Lógica de negócio de Tipos de Unidade
-│   │   └── ProdutoController.js      # Lógica de negócio de Produtos
+│   │   ├── ProdutoController.js      # Lógica de negócio de Produtos
+│   │   ├── FornecedorController.js   # Lógica de negócio de Fornecedores
+│   │   └── NotaFiscalController.js   # Lógica de negócio de Notas Fiscais
 │   ├── routes/
 │   │   ├── clientes.js          # Rotas da API de Clientes
 │   │   ├── tipos-unidade.js     # Rotas da API de Tipos de Unidade
-│   │   └── produtos.js          # Rotas da API de Produtos
+│   │   ├── produtos.js          # Rotas da API de Produtos
+│   │   ├── fornecedores.js      # Rotas da API de Fornecedores
+│   │   └── notas-fiscais.js     # Rotas da API de Notas Fiscais
 │   └── server.js                # Ponto de entrada da aplicação
 ├── package.json
 └── README.md
@@ -101,8 +140,6 @@ A aplicação estará disponível em:
 | GET | `/api/clientes/:cpf` | Busca cliente por CPF |
 | PUT | `/api/clientes/:cpf` | Atualiza cliente |
 | DELETE | `/api/clientes/:cpf` | Remove cliente |
-| POST | `/api/clientes/:cpf/telefones` | Adiciona telefone ao cliente |
-| DELETE | `/api/clientes/:cpf/telefones/:indice` | Remove telefone do cliente |
 
 ### Tipos de Unidade
 
@@ -119,10 +156,30 @@ A aplicação estará disponível em:
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
 | POST | `/api/produtos` | Cria um novo produto (margem calculada automaticamente) |
-| GET | `/api/produtos` | Lista todos os produtos |
+| GET | `/api/produtos` | Lista todos os produtos (com estoque) |
 | GET | `/api/produtos/:codigoBarras` | Busca produto por código de barras |
 | PUT | `/api/produtos/:codigoBarras` | Atualiza produto |
 | DELETE | `/api/produtos/:codigoBarras` | Remove produto |
+
+### Fornecedores
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| POST | `/api/fornecedores` | Cria um novo fornecedor |
+| GET | `/api/fornecedores` | Lista todos os fornecedores (com paginação e busca) |
+| GET | `/api/fornecedores/:id` | Busca fornecedor por ID |
+| PUT | `/api/fornecedores/:id` | Atualiza fornecedor |
+| DELETE | `/api/fornecedores/:id` | Remove fornecedor |
+
+### Notas Fiscais
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| POST | `/api/notas-fiscais` | Registra nova nota fiscal (atualiza estoque) |
+| GET | `/api/notas-fiscais` | Lista todas as notas fiscais |
+| GET | `/api/notas-fiscais/:id` | Busca nota fiscal por ID |
+| DELETE | `/api/notas-fiscais/:id` | Remove nota fiscal (reverte estoque) |
+| GET | `/api/notas-fiscais/relatorio` | Relatório de entradas por período |
 
 ## Exemplo de Requisição (POST /api/clientes)
 
@@ -156,30 +213,45 @@ A aplicação estará disponível em:
 }
 ```
 
-## Exemplo de Requisição (POST /api/produtos)
+## Exemplo de Requisição (POST /api/notas-fiscais)
 
 ```json
 {
-  "codigoBarras": "7891234567890",
-  "descricao": "Arroz Branco 5kg",
-  "tipoUnidade": "UN",
-  "precoCompra": 15.00,
-  "precoVenda": 22.50
+  "numero": "12345",
+  "serie": "001",
+  "fornecedor": "60a8f5c7d4e5f6001f123456",
+  "dataEmissao": "2024-01-15",
+  "dataEntrada": "2024-01-16",
+  "valorTotal": 1500.00,
+  "itens": [
+    {
+      "produto": "60a8f5c7d4e5f6001f789012",
+      "quantidade": 50,
+      "precoUnitario": 15.00,
+      "subtotal": 750.00
+    },
+    {
+      "produto": "60a8f5c7d4e5f6001f789013",
+      "quantidade": 25,
+      "precoUnitario": 30.00,
+      "subtotal": 750.00
+    }
+  ]
 }
 ```
 
-*Obs: A margem de lucro é calculada automaticamente pelo sistema.*
+*Obs: O registro da nota fiscal atualiza automaticamente o estoque dos produtos.*
 
 ## Arquitetura MVC
 
-- **Model**: Define a estrutura dos dados e regras de validação (Cliente.js, TipoUnidade.js, Produto.js)
-- **View**: Interface web responsiva com abas para Clientes, Produtos e Tipos de Unidade (index.html)
-- **Controller**: Gerencia as requisições e respostas da API (ClienteController.js, TipoUnidadeController.js, ProdutoController.js)
+- **Model**: Define a estrutura dos dados e regras de validação (Cliente.js, TipoUnidade.js, Produto.js, Fornecedor.js, NotaFiscal.js)
+- **View**: Interface web responsiva com abas para todos os 5 módulos (index.html)
+- **Controller**: Gerencia as requisições e respostas da API (5 controllers especializados)
 
 ## Tecnologias Utilizadas
 
 - **Backend**: Node.js, Express.js
-- **Banco de Dados**: MongoDB com Mongoose ODM
+- **Banco de Dados**: MongoDB com Mongoose ODM (suporte a transações)
 - **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
 - **Middleware**: CORS, Body-parser
 
@@ -189,7 +261,11 @@ A aplicação estará disponível em:
 - **Múltiplos Telefones**: Cliente pode ter vários telefones (celular, residencial, comercial)
 - **Margem de Lucro Automática**: Cálculo automático da margem de lucro nos produtos
 - **Tabela de Unidades**: Gestão de tipos de unidade reutilizável em todos os produtos
-- **Interface Unificada**: Single Page Application com navegação por abas
+- **Controle de Estoque**: Atualização automática via entrada de notas fiscais
+- **Transações MongoDB**: Garantia de integridade nas operações de entrada/saída
+- **Reversão de Estoque**: Exclusão de NF reverte quantidades automaticamente
+- **Interface Unificada**: Single Page Application com navegação por 5 abas
+- **Indicadores Visuais**: Badges coloridos para controle de estoque baixo/crítico
 
 ## Licença
 

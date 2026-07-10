@@ -6,7 +6,7 @@ node_modules/
 *.log
 *.tmp
 
-# Environment variables
+# Environment
 .env
 .env.local
 .env.*
@@ -20,13 +20,6 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.Python
-venv/
-env/
-ENV/
-.venv/
-env.bak/
-venv.bak/
 
 # Build outputs
 dist/
@@ -37,12 +30,4 @@ build/
 # OS generated files
 .DS_Store
 Thumbs.db
-
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# IDE
-.nyc_output/
 ```
