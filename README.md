@@ -1,6 +1,6 @@
-# Sistema de Gestão - MVC (Clientes, Produtos, Fornecedores, Notas Fiscais, Vendas e Contas a Pagar)
+# Sistema de Gestão - MVC (Clientes, Produtos, Fornecedores, Notas Fiscais, Vendas, Contas a Pagar e Configurações)
 
-Sistema de gestão desenvolvido com arquitetura **Model-View-Controller (MVC)** utilizando **JavaScript (Node.js)** e banco de dados **MongoDB**. O sistema gerencia **Clientes**, **Produtos**, **Fornecedores**, **Notas Fiscais**, **Tipos de Unidade**, **Vendas** e **Contas a Pagar** com controle automático de estoque e limite de crédito.
+Sistema de gestão desenvolvido com arquitetura **Model-View-Controller (MVC)** utilizando **JavaScript (Node.js)** e banco de dados **MongoDB**. O sistema gerencia **Clientes**, **Produtos**, **Fornecedores**, **Notas Fiscais**, **Tipos de Unidade**, **Vendas**, **Contas a Pagar** e **Configurações Personalizadas** com controle automático de estoque, limite de crédito e interface moderna personalizável.
 
 ## Módulos do Sistema
 
@@ -106,6 +106,24 @@ Sistema de gestão desenvolvido com arquitetura **Model-View-Controller (MVC)** 
 - **Relatório de Crédito**: Total comprometido vs. limite disponível por cliente
 - **Cancelamento Automático**: Ao cancelar uma venda a prazo, a conta a pagar correspondente é cancelada
 
+### 7. Configurações do Sistema (Personalização Visual)
+
+#### Campos de Configuração:
+- **Logotipo da Empresa**: Upload de imagem (JPG, PNG, GIF, SVG - Máx. 5MB)
+- **Cor Primária**: Cor principal do sistema (botões, cabeçalhos, destaques)
+- **Cor Secundária**: Cor secundária (gradientes, hover, detalhes)
+- **Cor de Fundo**: Cor de fundo da interface
+- **Cor do Texto**: Cor padrão do texto
+
+#### Funcionalidades Especiais:
+- **Upload no Servidor**: Logotipo é armazenado no servidor (não no localStorage)
+- **Persistência no Banco**: Todas as configurações são salvas no MongoDB
+- **Sincronização entre Navegadores**: Alterações refletem em todos os dispositivos/navegadores
+- **Aplicação Dinâmica**: Cores aplicadas via variáveis CSS em tempo real
+- **Preview em Tempo Real**: Visualização imediata das cores selecionadas
+- **Interface Moderna**: Design responsivo com sidebar, cards e componentes elegantes
+- **Múltiplas Telas**: Interface dividida em arquivos separados para fácil manutenção
+
 ## Estrutura do Projeto
 
 ```
@@ -120,9 +138,12 @@ Sistema de gestão desenvolvido com arquitetura **Model-View-Controller (MVC)** 
 │   │   ├── Fornecedor.js        # Model do Fornecedor
 │   │   ├── NotaFiscal.js        # Model de Nota Fiscal (entrada de mercadorias)
 │   │   ├── Venda.js             # Model de Venda (controle de estoque e pagamento)
-│   │   └── ContaPagar.js        # Model de Contas a Pagar (controle de crédito)
+│   │   ├── ContaPagar.js        # Model de Contas a Pagar (controle de crédito)
+│   │   └── Configuracao.js      # Model de Configurações (logotipo e cores)
 │   ├── views/
-│   │   └── index.html           # Interface web com abas (7 módulos)
+│   │   ├── index.html           # Página inicial
+│   │   ├── configuracoes.html   # Tela de configurações
+│   │   └── ...                  # Outras telas do sistema
 │   ├── controllers/
 │   │   ├── ClienteController.js      # Lógica de negócio de Clientes
 │   │   ├── TipoUnidadeController.js  # Lógica de negócio de Tipos de Unidade
@@ -130,7 +151,8 @@ Sistema de gestão desenvolvido com arquitetura **Model-View-Controller (MVC)** 
 │   │   ├── FornecedorController.js   # Lógica de negócio de Fornecedores
 │   │   ├── NotaFiscalController.js   # Lógica de negócio de Notas Fiscais
 │   │   ├── VendaController.js        # Lógica de negócio de Vendas
-│   │   └── ContaPagarController.js   # Lógica de negócio de Contas a Pagar
+│   │   ├── ContaPagarController.js   # Lógica de negócio de Contas a Pagar
+│   │   └── ConfiguracaoController.js # Lógica de negócio de Configurações
 │   ├── routes/
 │   │   ├── clientes.js          # Rotas da API de Clientes
 │   │   ├── tipos-unidade.js     # Rotas da API de Tipos de Unidade
@@ -138,7 +160,16 @@ Sistema de gestão desenvolvido com arquitetura **Model-View-Controller (MVC)** 
 │   │   ├── fornecedores.js      # Rotas da API de Fornecedores
 │   │   ├── notas-fiscais.js     # Rotas da API de Notas Fiscais
 │   │   ├── vendas.js            # Rotas da API de Vendas
-│   │   └── contas-pagar.js      # Rotas da API de Contas a Pagar
+│   │   ├── contas-pagar.js      # Rotas da API de Contas a Pagar
+│   │   └── configuracoes.js     # Rotas da API de Configurações
+│   ├── public/
+│   │   ├── css/
+│   │   │   └── style.css        # Estilos globais com variáveis CSS
+│   │   ├── js/
+│   │   │   ├── app.js           # Script principal (carrega configurações)
+│   │   │   └── configuracoes.js # Script da tela de configurações
+│   │   └── uploads/
+│   │       └── logos/           # Armazenamento de logotipos
 │   └── server.js                # Ponto de entrada da aplicação
 ├── package.json
 └── README.md
@@ -246,6 +277,15 @@ A aplicação estará disponível em:
 | GET | `/api/contas-pagar/relatorio` | Relatório de contas a pagar por status |
 | GET | `/api/contas-pagar/cliente/:clienteId` | Contas a pagar de um cliente específico |
 
+### Configurações
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/api/configuracoes` | Obtém configurações atuais do sistema |
+| PUT | `/api/configuracoes` | Atualiza configurações (cores e logotipo) |
+
+*Obs: O upload de logotipo é feito via multipart/form-data. As configurações são salvas no MongoDB e aplicadas em todos os navegadores.*
+
 ## Exemplo de Requisição (POST /api/clientes)
 
 ```json
@@ -346,16 +386,17 @@ A aplicação estará disponível em:
 
 ## Arquitetura MVC
 
-- **Model**: Define a estrutura dos dados e regras de validação (Cliente.js, TipoUnidade.js, Produto.js, Fornecedor.js, NotaFiscal.js, Venda.js, ContaPagar.js)
-- **View**: Interface web responsiva com abas para todos os módulos (index.html)
-- **Controller**: Gerencia as requisições e respostas da API (7 controllers especializados)
+- **Model**: Define a estrutura dos dados e regras de validação (Cliente.js, TipoUnidade.js, Produto.js, Fornecedor.js, NotaFiscal.js, Venda.js, ContaPagar.js, Configuracao.js)
+- **View**: Interface web responsiva e moderna com múltiplas telas e sidebar de navegação
+- **Controller**: Gerencia as requisições e respostas da API (8 controllers especializados)
 
 ## Tecnologias Utilizadas
 
 - **Backend**: Node.js, Express.js
 - **Banco de Dados**: MongoDB com Mongoose ODM (suporte a transações)
 - **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
-- **Middleware**: CORS, Body-parser
+- **Middleware**: CORS, Body-parser, Multer (upload de arquivos)
+- **Ícones**: Font Awesome 6
 
 ## Funcionalidades Especiais
 
@@ -372,7 +413,12 @@ A aplicação estará disponível em:
 - **Contas a Pagar**: Gestão completa de crédito concedido aos clientes
 - **Pagamentos Parciais**: Permite quitar contas em múltiplos pagamentos
 - **Estorno Automático**: Cancelamento de venda estorna estoque e cancela conta a pagar
-- **Interface Unificada**: Single Page Application com navegação por abas
+- **Interface Moderna**: Design responsivo com sidebar, cards e componentes elegantes
+- **Personalização Visual**: Logotipo e cores customizáveis salvas no servidor
+- **Sincronização Multi-dispositivo**: Configurações aplicadas em todos os navegadores
+- **Upload de Arquivos**: Logotipo armazenado no servidor com multer
+- **Variáveis CSS**: Cores dinâmicas aplicadas via variáveis CSS em tempo real
+- **Múltiplas Telas**: Interface modular dividida em arquivos separados
 - **Indicadores Visuais**: Badges coloridos para controle de estoque baixo/crítico
 
 ## Licença

@@ -10,6 +10,7 @@ const fornecedoresRoutes = require('./routes/fornecedores');
 const notasFiscaisRoutes = require('./routes/notas-fiscais');
 const vendasRoutes = require('./routes/vendas');
 const contasPagarRoutes = require('./routes/contas-pagar');
+const configuracoesRoutes = require('./routes/configuracoes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,8 +23,10 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Servir arquivo estático (View)
+// Servir arquivos estáticos (Views e Public)
 app.use(express.static(path.join(__dirname, 'views')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Rotas da API
 app.use('/api/clientes', clientesRoutes);
@@ -33,6 +36,7 @@ app.use('/api/fornecedores', fornecedoresRoutes);
 app.use('/api/notas-fiscais', notasFiscaisRoutes);
 app.use('/api/vendas', vendasRoutes);
 app.use('/api/contas-pagar', contasPagarRoutes);
+app.use('/api/configuracoes', configuracoesRoutes);
 
 // Rota para servir a página principal
 app.get('/', (req, res) => {

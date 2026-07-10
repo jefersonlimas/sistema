@@ -7,13 +7,19 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"
   },
-  "keywords": ["mvc", "mongodb", "express", "clientes"],
+  "keywords": [
+    "mvc",
+    "mongodb",
+    "express",
+    "clientes"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^2.3.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
-    "mongoose": "^9.7.4"
+    "mongoose": "^9.7.4",
+    "multer": "^2.2.0"
   }
 }
