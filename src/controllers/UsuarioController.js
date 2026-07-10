@@ -2,7 +2,6 @@ const Usuario = require('../models/Usuario');
 const Funcao = require('../models/Funcao');
 
 class UsuarioController {
-  // Criar novo usuário
   async criar(req, res) {
     try {
       const { codigo, nome, funcaoId, nomeUsuario, senha } = req.body;
@@ -69,7 +68,6 @@ class UsuarioController {
     }
   }
 
-  // Listar todos os usuários
   async listar(req, res) {
     try {
       const { ativo, funcaoId } = req.query;
@@ -104,7 +102,6 @@ class UsuarioController {
     }
   }
 
-  // Buscar usuário por ID
   async buscarPorId(req, res) {
     try {
       const { id } = req.params;
@@ -129,7 +126,6 @@ class UsuarioController {
     }
   }
 
-  // Buscar usuário por nome de usuário
   async buscarPorNomeUsuario(req, res) {
     try {
       const { nomeUsuario } = req.params;
@@ -154,7 +150,6 @@ class UsuarioController {
     }
   }
 
-  // Atualizar usuário
   async atualizar(req, res) {
     try {
       const { id } = req.params;
@@ -227,7 +222,6 @@ class UsuarioController {
     }
   }
 
-  // Excluir usuário (soft delete)
   async excluir(req, res) {
     try {
       const { id } = req.params;
@@ -235,6 +229,13 @@ class UsuarioController {
       const usuario = await Usuario.findById(id);
       if (!usuario) {
         return res.status(404).json({ erro: 'Usuário não encontrado' });
+      }
+
+      // Não permitir exclusão de usuário imutável (admin)
+      if (usuario.imutavel) {
+        return res.status(403).json({ 
+          erro: 'Não é possível excluir este usuário. Este é um usuário do sistema e não pode ser removido.' 
+        });
       }
 
       // Soft delete - apenas desativa
@@ -254,7 +255,6 @@ class UsuarioController {
     }
   }
 
-  // Alterar senha
   async alterarSenha(req, res) {
     try {
       const { id } = req.params;
@@ -297,7 +297,6 @@ class UsuarioController {
     }
   }
 
-  // Autenticar usuário
   async autenticar(req, res) {
     try {
       const { nomeUsuario, senha } = req.body;
@@ -341,4 +340,69 @@ class UsuarioController {
   }
 }
 
-module.exports = new UsuarioController();
+// Instância do controller para métodos da API
+const usuarioController = new UsuarioController();
+
+// Função independente para criar admin no startup
+async function criarUsuarioAdmin() {
+  try {
+    const totalUsuarios = await Usuario.countDocuments();
+    
+    if (totalUsuarios === 0) {
+      // Criar função "Administrador" com todos os módulos se não existir
+      let funcaoAdmin = await Funcao.findOne({ codigo: 'ADMIN' });
+      
+      if (!funcaoAdmin) {
+        funcaoAdmin = new Funcao({
+          codigo: 'ADMIN',
+          descricao: 'Administrador do Sistema',
+          modulosAcesso: [
+            'clientes',
+            'produtos',
+            'tipos-unidade',
+            'fornecedores',
+            'notas-fiscais',
+            'vendas',
+            'contas-pagar',
+            'funcoes',
+            'usuarios',
+            'configuracoes'
+          ],
+          ativo: true,
+          imutavel: true
+        });
+        await funcaoAdmin.save();
+        console.log('Função Administrador criada com sucesso');
+      }
+      
+      // Criar usuário admin
+      const usuarioAdmin = new Usuario({
+        codigo: 'ADMIN001',
+        nome: 'Administrador',
+        funcao: funcaoAdmin._id,
+        nomeUsuario: 'admin',
+        senha: 'admin123',
+        ativo: true,
+        imutavel: true
+      });
+      
+      await usuarioAdmin.save();
+      console.log('Usuário administrador criado com sucesso');
+      console.log('Login: admin | Senha: admin123');
+    }
+  } catch (erro) {
+    console.error('Erro ao criar usuário admin:', erro.message);
+  }
+}
+
+module.exports = {
+  criarUsuarioAdmin,
+  criar: usuarioController.criar.bind(usuarioController),
+  listar: usuarioController.listar.bind(usuarioController),
+  buscarPorId: usuarioController.buscarPorId.bind(usuarioController),
+  buscarPorNomeUsuario: usuarioController.buscarPorNomeUsuario.bind(usuarioController),
+  atualizar: usuarioController.atualizar.bind(usuarioController),
+  excluir: usuarioController.excluir.bind(usuarioController),
+  alterarSenha: usuarioController.alterarSenha.bind(usuarioController),
+  autenticar: usuarioController.autenticar.bind(usuarioController)
+};

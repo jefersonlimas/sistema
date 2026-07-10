@@ -13,12 +13,16 @@ const contasPagarRoutes = require('./routes/contas-pagar');
 const configuracoesRoutes = require('./routes/configuracoes');
 const funcoesRoutes = require('./routes/funcoes');
 const usuariosRoutes = require('./routes/usuarios');
+const { criarUsuarioAdmin } = require('./controllers/UsuarioController');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Conectar ao MongoDB
 connectDB();
+
+// Criar usuário admin se for o primeiro acesso
+criarUsuarioAdmin();
 
 // Middlewares
 app.use(cors());
@@ -42,13 +46,19 @@ app.use('/api/configuracoes', configuracoesRoutes);
 app.use('/api/funcoes', funcoesRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 
-// Rota para servir a página principal
+// Rota para servir a página de login
+app.get('/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'login.html'));
+});
+
+// Rota padrão redireciona para login
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'index.html'));
+    res.redirect('/login.html');
 });
 
 // Iniciar servidor
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
     console.log(`API disponível em http://localhost:${PORT}/api`);
+    console.log(`Página de login: http://localhost:${PORT}/login.html`);
 });
