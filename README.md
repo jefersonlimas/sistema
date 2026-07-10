@@ -79,6 +79,16 @@ Sistema completo de gestão empresarial desenvolvido com arquitetura **Model-Vie
 - ✅ Aplicação dinâmica via variáveis CSS
 - ✅ Interface moderna e responsiva
 
+### 12. **Módulo de Relatórios**
+- ✅ **Vendas Diárias**: Resumo e detalhamento das vendas por data
+- ✅ **Vendas por Funcionário**: Desempenho individual filtrado por período
+- ✅ **Contas a Receber por Cliente**: Títulos vencidos, a vencer e recebidos
+- ✅ **Produtos Mais Vendidos**: Ranking baseado na quantidade vendida
+- ✅ **Clientes Aniversariantes**: Lista por período para campanhas
+- ✅ **Estoque Baixo**: Alerta de produtos abaixo do limite mínimo
+- ✅ Filtros dinâmicos conforme tipo de relatório
+- ✅ Exportação para impressão com layout otimizado
+
 ## 🏗️ Estrutura do Projeto
 
 ```
@@ -107,7 +117,8 @@ Sistema completo de gestão empresarial desenvolvido com arquitetura **Model-Vie
 │   │   ├── ContaPagar.js
 │   │   ├── Funcao.js
 │   │   ├── Usuario.js
-│   │   └── Configuracao.js
+│   │   ├── Configuracao.js
+│   │   └── Relatorio.js
 │   ├── routes/
 │   │   ├── clientes.js
 │   │   ├── produtos.js
@@ -118,18 +129,21 @@ Sistema completo de gestão empresarial desenvolvido com arquitetura **Model-Vie
 │   │   ├── contas-pagar.js
 │   │   ├── funcoes.js
 │   │   ├── usuarios.js
-│   │   └── configuracoes.js
+│   │   ├── configuracoes.js
+│   │   └── relatorios.js
 │   ├── views/
 │   │   ├── login.html           # Tela de login
 │   │   ├── index.html           # Dashboard principal
-│   │   └── configuracoes.html   # Tela de configurações
+│   │   ├── configuracoes.html   # Tela de configurações
+│   │   └── relatorios.html      # Módulo de relatórios
 │   ├── public/
 │   │   ├── css/
 │   │   │   └── style.css        # Estilos globais
 │   │   └── js/
 │   │       ├── app.js           # Script principal
 │   │       ├── login.js         # Script de login
-│   │       └── configuracoes.js # Script de configurações
+│   │       ├── configuracoes.js # Script de configurações
+│   │       └── relatorios.js    # Script de relatórios
 │   ├── uploads/
 │   │   └── logos/               # Logotipos uploadados
 │   └── server.js                # Servidor Express
@@ -196,6 +210,16 @@ Sistema completo de gestão empresarial desenvolvido com arquitetura **Model-Vie
 | GET | `/api/configuracoes` | Obter configurações |
 | PUT | `/api/configuracoes` | Atualizar configurações |
 | POST | `/api/configuracoes/upload-logo` | Upload de logotipo |
+
+### Relatórios
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/api/relatorios/vendas-diarias?data=YYYY-MM-DD` | Vendas do dia |
+| GET | `/api/relatorios/vendas-funcionario?inicio=...&fim=...` | Vendas por funcionário |
+| GET | `/api/relatorios/contas-receber?clienteId=...&inicio=...&fim=...` | Contas a receber |
+| GET | `/api/relatorios/produtos-mais-vendidos?inicio=...&fim=...` | Ranking produtos |
+| GET | `/api/relatorios/aniversariantes?inicio=MM-DD&fim=MM-DD` | Aniversariantes |
+| GET | `/api/relatorios/estoque-baixo?limite=10` | Estoque baixo |
 
 ## 🚀 Como Executar
 

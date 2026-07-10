@@ -85,6 +85,7 @@ async function carregarMenuModulos() {
         { id: 'contas-pagar', nome: 'Contas a Pagar', icone: '💳', url: 'modulos/contas-pagar.html' },
         { id: 'funcoes', nome: 'Funções', icone: '🔐', url: 'modulos/funcoes.html' },
         { id: 'usuarios', nome: 'Usuários', icone: '👤', url: 'modulos/usuarios.html' },
+        { id: 'relatorios', nome: 'Relatórios', icone: '📊', url: 'relatorios.html' },
         { id: 'configuracoes', nome: 'Configurações', icone: '⚙️', url: 'configuracoes.html' }
     ];
     
@@ -119,9 +120,14 @@ async function carregarModulo(url, moduloId) {
     try {
         const contentArea = document.getElementById('contentArea');
         
-        // Se for configurações, redirecionar para página separada
+        // Se for configurações ou relatórios, redirecionar para página separada
         if (moduloId === 'configuracoes') {
             window.location.href = '/configuracoes.html';
+            return;
+        }
+        
+        if (moduloId === 'relatorios') {
+            window.location.href = '/relatorios.html';
             return;
         }
         

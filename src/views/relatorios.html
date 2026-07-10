@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - Sistema de Gestão</title>
+    <link rel="stylesheet" href="/public/css/style.css">
+    <style>
+        .relatorio-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .relatorio-menu {
+            width: 250px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .relatorio-menu h3 {
+            color: var(--text-color);
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .relatorio-menu button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            text-align: left;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .relatorio-menu button:hover,
+        .relatorio-menu button.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .relatorio-content {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .filtro-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 6px;
+        }
+        
+        .filtro-form .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filtro-form label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .filtro-form input,
+        .filtro-form select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .btn-gerar {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .btn-gerar:hover {
+            opacity: 0.9;
+        }
+        
+        .resultado-relatorio {
+            margin-top: 20px;
+        }
+        
+        .resultado-relatorio table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .resultado-relatorio th,
+        .resultado-relatorio td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .resultado-relatorio th {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .resultado-relatorio tr:hover {
+            background: rgba(0,0,0,0.05);
+        }
+        
+        .resumo-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .resumo-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .resumo-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .resumo-card .valor {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .estoque-baixo-alert {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        .aniversariante-destaque {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        @media print {
+            .relatorio-menu,
+            .btn-gerar,
+            .sidebar,
+            .top-bar {
+                display: none !important;
+            }
+            
+            .relatorio-container {
+                display: block;
+            }
+            
+            .relatorio-content {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo-container">
+            <img id="logo-img" src="" alt="Logo" style="display: none; max-height: 40px;">
+            <span id="logo-text" class="logo-text">Sistema de Gestão</span>
+        </div>
+        <div class="user-info">
+            <span id="user-nome">Usuário</span>
+            <span id="user-funcao">Função</span>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <nav class="sidebar" id="sidebar">
+            <!-- Menu será carregado dinamicamente -->
+        </nav>
+
+        <main class="content">
+            <h1>Relatórios</h1>
+            
+            <div class="relatorio-container">
+                <div class="relatorio-menu">
+                    <h3>Selecione o Relatório</h3>
+                    <button onclick="selecionarRelatorio('vendas-diarias')" class="active" data-relatorio="vendas-diarias">
+                        📊 Vendas Diárias
+                    </button>
+                    <button onclick="selecionarRelatorio('vendas-funcionario')" data-relatorio="vendas-funcionario">
+                        👥 Vendas por Funcionário
+                    </button>
+                    <button onclick="selecionarRelatorio('contas-receber')" data-relatorio="contas-receber">
+                        💰 Contas a Receber
+                    </button>
+                    <button onclick="selecionarRelatorio('produtos-mais-vendidos')" data-relatorio="produtos-mais-vendidos">
+                        🏆 Produtos Mais Vendidos
+                    </button>
+                    <button onclick="selecionarRelatorio('aniversariantes')" data-relatorio="aniversariantes">
+                        🎂 Clientes Aniversariantes
+                    </button>
+                    <button onclick="selecionarRelatorio('estoque-baixo')" data-relatorio="estoque-baixo">
+                        ⚠️ Estoque Baixo
+                    </button>
+                </div>
+
+                <div class="relatorio-content">
+                    <div id="filtros-container">
+                        <!-- Filtros serão inseridos dinamicamente -->
+                    </div>
+
+                    <div id="resultado-container" class="resultado-relatorio">
+                        <!-- Resultados serão exibidos aqui -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/public/js/app.js"></script>
+    <script src="/public/js/relatorios.js"></script>
+</body>
+</html>

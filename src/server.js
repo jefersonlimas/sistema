@@ -13,6 +13,7 @@ const contasPagarRoutes = require('./routes/contas-pagar');
 const configuracoesRoutes = require('./routes/configuracoes');
 const funcoesRoutes = require('./routes/funcoes');
 const usuariosRoutes = require('./routes/usuarios');
+const relatoriosRoutes = require('./routes/relatorios');
 const { criarUsuarioAdmin } = require('./controllers/UsuarioController');
 
 const app = express();
@@ -45,6 +46,7 @@ app.use('/api/contas-pagar', contasPagarRoutes);
 app.use('/api/configuracoes', configuracoesRoutes);
 app.use('/api/funcoes', funcoesRoutes);
 app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/relatorios', relatoriosRoutes);
 
 // Rota para servir a página de login
 app.get('/login.html', (req, res) => {
