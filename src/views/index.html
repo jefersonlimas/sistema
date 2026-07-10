@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão</title>
+    <link rel="stylesheet" href="/public/css/style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img id="sidebarLogo" src="" alt="Logotipo" class="sidebar-logo" style="display: none;">
+            <h2 id="sidebarTitle">Sistema de Gestão</h2>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul id="menuModulos">
+                <!-- Módulos serão inseridos dinamicamente conforme permissão -->
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <button onclick="logout()" class="btn-logout">Sair</button>
+        </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
+        <!-- Barra Superior -->
+        <header class="top-bar">
+            <div class="user-info">
+                <span class="user-name" id="userName">Usuário</span>
+                <span class="user-role" id="userRole">Função</span>
+            </div>
+            <div class="top-actions">
+                <button onclick="window.location.href='/configuracoes.html'" class="btn-icon" title="Configurações">
+                    ⚙️
+                </button>
+            </div>
+        </header>
+
+        <!-- Área de Conteúdo -->
+        <div class="content-area" id="contentArea">
+            <!-- Conteúdo será carregado dinamicamente -->
+        </div>
+    </main>
+
+    <script src="/public/js/app.js"></script>
+</body>
+</html>
