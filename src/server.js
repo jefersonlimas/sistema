@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const connectDB = require('./config/database');
 const clientesRoutes = require('./routes/clientes');
+const tiposUnidadeRoutes = require('./routes/tipos-unidade');
+const produtosRoutes = require('./routes/produtos');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +23,8 @@ app.use(express.static(path.join(__dirname, 'views')));
 
 // Rotas da API
 app.use('/api', clientesRoutes);
+app.use('/api', tiposUnidadeRoutes);
+app.use('/api', produtosRoutes);
 
 // Rota para servir a página principal
 app.get('/', (req, res) => {
