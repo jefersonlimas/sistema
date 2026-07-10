@@ -11,6 +11,8 @@ const notasFiscaisRoutes = require('./routes/notas-fiscais');
 const vendasRoutes = require('./routes/vendas');
 const contasPagarRoutes = require('./routes/contas-pagar');
 const configuracoesRoutes = require('./routes/configuracoes');
+const funcoesRoutes = require('./routes/funcoes');
+const usuariosRoutes = require('./routes/usuarios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -37,6 +39,8 @@ app.use('/api/notas-fiscais', notasFiscaisRoutes);
 app.use('/api/vendas', vendasRoutes);
 app.use('/api/contas-pagar', contasPagarRoutes);
 app.use('/api/configuracoes', configuracoesRoutes);
+app.use('/api/funcoes', funcoesRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 
 // Rota para servir a página principal
 app.get('/', (req, res) => {

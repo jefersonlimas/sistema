@@ -1,6 +1,6 @@
-# Sistema de Gestão - MVC (Clientes, Produtos, Fornecedores, Notas Fiscais, Vendas, Contas a Pagar e Configurações)
+# Sistema de Gestão - MVC (Clientes, Produtos, Fornecedores, Notas Fiscais, Vendas, Contas a Pagar, Configurações, Funções e Usuários)
 
-Sistema de gestão desenvolvido com arquitetura **Model-View-Controller (MVC)** utilizando **JavaScript (Node.js)** e banco de dados **MongoDB**. O sistema gerencia **Clientes**, **Produtos**, **Fornecedores**, **Notas Fiscais**, **Tipos de Unidade**, **Vendas**, **Contas a Pagar** e **Configurações Personalizadas** com controle automático de estoque, limite de crédito e interface moderna personalizável.
+Sistema de gestão desenvolvido com arquitetura **Model-View-Controller (MVC)** utilizando **JavaScript (Node.js)** e banco de dados **MongoDB**. O sistema gerencia **Clientes**, **Produtos**, **Fornecedores**, **Notas Fiscais**, **Tipos de Unidade**, **Vendas**, **Contas a Pagar**, **Configurações Personalizadas**, **Funções com Permissões** e **Usuários** com controle automático de estoque, limite de crédito, autenticação segura e interface moderna personalizável.
 
 ## Módulos do Sistema
 
