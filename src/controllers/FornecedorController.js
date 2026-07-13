@@ -1,113 +1,49 @@
-const Fornecedor = require('../models/Fornecedor');
+const fornecedorService = require('../services/FornecedorService');
 
 class FornecedorController {
-    async index(req, res) {
+    async index(req, res, next) {
         try {
             const { page = 1, limit = 10, search } = req.query;
-            const query = search ? { 
-                $or: [
-                    { nome: { $regex: search, $options: 'i' } },
-                    { codigo: { $regex: search, $options: 'i' } }
-                ]
-            } : {};
-            
-            const fornecedores = await Fornecedor.find(query)
-                .limit(limit * 1)
-                .skip((page - 1) * limit)
-                .sort({ nome: 1 });
-            
-            const count = await Fornecedor.countDocuments(query);
-            
-            res.json({
-                fornecedores,
-                totalPages: Math.ceil(count / limit),
-                currentPage: page,
-                total: count
-            });
+            const resultado = await fornecedorService.listAll({ page, limit, search });
+            res.json(resultado);
         } catch (error) {
-            res.status(500).json({ message: 'Erro ao buscar fornecedores', error: error.message });
+            next(error);
         }
     }
 
-    async show(req, res) {
+    async show(req, res, next) {
         try {
-            const fornecedor = await Fornecedor.findById(req.params.id);
-            if (!fornecedor) {
-                return res.status(404).json({ message: 'Fornecedor não encontrado' });
-            }
+            const fornecedor = await fornecedorService.findById(req.params.id, true);
             res.json(fornecedor);
         } catch (error) {
-            res.status(500).json({ message: 'Erro ao buscar fornecedor', error: error.message });
+            next(error);
         }
     }
 
-    async store(req, res) {
+    async store(req, res, next) {
         try {
-            const { codigo, nome, endereco, telefone, contato } = req.body;
-            
-            // Verificar se código já existe
-            const existingFornecedor = await Fornecedor.findOne({ codigo });
-            if (existingFornecedor) {
-                return res.status(400).json({ message: 'Código de fornecedor já cadastrado' });
-            }
-            
-            const fornecedor = new Fornecedor({
-                codigo,
-                nome,
-                endereco,
-                telefone,
-                contato
-            });
-            
-            await fornecedor.save();
+            const fornecedor = await fornecedorService.create(req.body);
             res.status(201).json(fornecedor);
         } catch (error) {
-            if (error.code === 11000) {
-                return res.status(400).json({ message: 'Código de fornecedor já cadastrado' });
-            }
-            res.status(500).json({ message: 'Erro ao cadastrar fornecedor', error: error.message });
+            next(error);
         }
     }
 
-    async update(req, res) {
+    async update(req, res, next) {
         try {
-            const { codigo, nome, endereco, telefone, contato } = req.body;
-            
-            // Verificar se outro fornecedor já tem este código
-            const existingFornecedor = await Fornecedor.findOne({ 
-                codigo, 
-                _id: { $ne: req.params.id } 
-            });
-            
-            if (existingFornecedor) {
-                return res.status(400).json({ message: 'Código de fornecedor já cadastrado' });
-            }
-            
-            const fornecedor = await Fornecedor.findByIdAndUpdate(
-                req.params.id,
-                { codigo, nome, endereco, telefone, contato },
-                { new: true, runValidators: true }
-            );
-            
-            if (!fornecedor) {
-                return res.status(404).json({ message: 'Fornecedor não encontrado' });
-            }
-            
+            const fornecedor = await fornecedorService.update(req.params.id, req.body);
             res.json(fornecedor);
         } catch (error) {
-            res.status(500).json({ message: 'Erro ao atualizar fornecedor', error: error.message });
+            next(error);
         }
     }
 
-    async destroy(req, res) {
+    async destroy(req, res, next) {
         try {
-            const fornecedor = await Fornecedor.findByIdAndDelete(req.params.id);
-            if (!fornecedor) {
-                return res.status(404).json({ message: 'Fornecedor não encontrado' });
-            }
+            await fornecedorService.delete(req.params.id);
             res.json({ message: 'Fornecedor excluído com sucesso' });
         } catch (error) {
-            res.status(500).json({ message: 'Erro ao excluir fornecedor', error: error.message });
+            next(error);
         }
     }
 }

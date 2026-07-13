@@ -1,156 +1,81 @@
 const Cliente = require('../models/Cliente');
+const clienteService = require('../services/ClienteService');
+const { errorHandler } = require('../middlewares/errorHandler');
 
 class ClienteController {
     // Create - Criar novo cliente
-    static async criarCliente(req, res) {
+    static async criarCliente(req, res, next) {
         try {
-            const { nome, cpf, dataNascimento, endereco, telefones, limiteCredito } = req.body;
-
-            const clienteExistente = await Cliente.findOne({ cpf });
-            if (clienteExistente) {
-                return res.status(400).json({ 
-                    error: 'Já existe um cliente cadastrado com este CPF' 
-                });
-            }
-
-            const cliente = new Cliente({
-                nome,
-                cpf,
-                dataNascimento,
-                endereco,
-                telefones,
-                limiteCredito
-            });
-
-            await cliente.save();
+            const cliente = await clienteService.create(req.body);
             res.status(201).json(cliente);
         } catch (error) {
-            if (error.name === 'ValidationError') {
-                const mensagens = Object.values(error.errors).map(err => err.message);
-                return res.status(400).json({ erros: mensagens });
-            }
-            res.status(500).json({ error: 'Erro ao criar cliente', detalhes: error.message });
+            next(error);
         }
     }
 
     // Read - Listar todos os clientes
-    static async listarClientes(req, res) {
+    static async listarClientes(req, res, next) {
         try {
-            const clientes = await Cliente.find().sort({ nome: 1 });
-            res.json(clientes);
+            const resultado = await clienteService.listAll();
+            res.json(resultado.data);
         } catch (error) {
-            res.status(500).json({ error: 'Erro ao listar clientes', detalhes: error.message });
+            next(error);
         }
     }
 
     // Read - Buscar cliente por CPF
-    static async buscarClientePorCPF(req, res) {
+    static async buscarClientePorCPF(req, res, next) {
         try {
             const { cpf } = req.params;
-            const cliente = await Cliente.findOne({ cpf });
-
-            if (!cliente) {
-                return res.status(404).json({ error: 'Cliente não encontrado' });
-            }
-
+            const cliente = await clienteService.findByCpf(cpf, true);
             res.json(cliente);
         } catch (error) {
-            res.status(500).json({ error: 'Erro ao buscar cliente', detalhes: error.message });
+            next(error);
         }
     }
 
     // Update - Atualizar cliente
-    static async atualizarCliente(req, res) {
+    static async atualizarCliente(req, res, next) {
         try {
             const { cpf } = req.params;
-            const dadosAtualizados = req.body;
-
-            // Se estiver tentando alterar o CPF, verificar se já existe
-            if (dadosAtualizados.cpf && dadosAtualizados.cpf !== cpf) {
-                const clienteExistente = await Cliente.findOne({ cpf: dadosAtualizados.cpf });
-                if (clienteExistente) {
-                    return res.status(400).json({ 
-                        error: 'Já existe um cliente cadastrado com este CPF' 
-                    });
-                }
-            }
-
-            const cliente = await Cliente.findOneAndUpdate(
-                { cpf },
-                dadosAtualizados,
-                { new: true, runValidators: true }
-            );
-
-            if (!cliente) {
-                return res.status(404).json({ error: 'Cliente não encontrado' });
-            }
-
+            const cliente = await clienteService.updateByCpf(cpf, req.body);
             res.json(cliente);
         } catch (error) {
-            if (error.name === 'ValidationError') {
-                const mensagens = Object.values(error.errors).map(err => err.message);
-                return res.status(400).json({ erros: mensagens });
-            }
-            res.status(500).json({ error: 'Erro ao atualizar cliente', detalhes: error.message });
+            next(error);
         }
     }
 
     // Delete - Remover cliente
-    static async removerCliente(req, res) {
+    static async removerCliente(req, res, next) {
         try {
             const { cpf } = req.params;
-            const cliente = await Cliente.findOneAndDelete({ cpf });
-
-            if (!cliente) {
-                return res.status(404).json({ error: 'Cliente não encontrado' });
-            }
-
+            await clienteService.deleteByCpf(cpf);
             res.json({ message: 'Cliente removido com sucesso' });
         } catch (error) {
-            res.status(500).json({ error: 'Erro ao remover cliente', detalhes: error.message });
+            next(error);
         }
     }
 
     // Adicionar telefone
-    static async adicionarTelefone(req, res) {
+    static async adicionarTelefone(req, res, next) {
         try {
             const { cpf } = req.params;
             const { tipo, numero } = req.body;
-
-            const cliente = await Cliente.findOne({ cpf });
-            if (!cliente) {
-                return res.status(404).json({ error: 'Cliente não encontrado' });
-            }
-
-            cliente.telefones.push({ tipo, numero });
-            await cliente.save();
-
+            const cliente = await clienteService.addTelefone(cpf, { tipo, numero });
             res.json(cliente);
         } catch (error) {
-            res.status(500).json({ error: 'Erro ao adicionar telefone', detalhes: error.message });
+            next(error);
         }
     }
 
     // Remover telefone
-    static async removerTelefone(req, res) {
+    static async removerTelefone(req, res, next) {
         try {
             const { cpf, indice } = req.params;
-
-            const cliente = await Cliente.findOne({ cpf });
-            if (!cliente) {
-                return res.status(404).json({ error: 'Cliente não encontrado' });
-            }
-
-            if (indice < 0 || indice >= cliente.telefones.length) {
-                return res.status(400).json({ error: 'Índice de telefone inválido' });
-            }
-
-            cliente.telefones.splice(indice, 1);
-            await cliente.save();
-
+            const cliente = await clienteService.removeTelefone(cpf, parseInt(indice));
             res.json(cliente);
         } catch (error) {
-            res.status(500).json({ error: 'Erro ao remover telefone', detalhes: error.message });
+            next(error);
         }
     }
 }

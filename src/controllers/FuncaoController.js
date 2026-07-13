@@ -1,184 +1,74 @@
-const Funcao = require('../models/Funcao');
+const FuncaoService = require('../services/FuncaoService');
 
 class FuncaoController {
   // Criar nova função
-  async criar(req, res) {
+  async criar(req, res, next) {
     try {
-      const { codigo, descricao, modulosAcesso } = req.body;
-
-      // Validar campos obrigatórios
-      if (!codigo || !descricao || !modulosAcesso || modulosAcesso.length === 0) {
-        return res.status(400).json({ 
-          erro: 'Código, descrição e pelo menos um módulo de acesso são obrigatórios' 
-        });
-      }
-
-      // Verificar se código já existe
-      const funcaoExistente = await Funcao.findOne({ codigo });
-      if (funcaoExistente) {
-        return res.status(409).json({ 
-          erro: 'Já existe uma função com este código' 
-        });
-      }
-
-      const funcao = new Funcao({
-        codigo,
-        descricao,
-        modulosAcesso
-      });
-
-      await funcao.save();
+      const funcao = await FuncaoService.create(req.body);
       res.status(201).json(funcao);
-    } catch (erro) {
-      console.error('Erro ao criar função:', erro);
-      res.status(500).json({ 
-        erro: 'Erro ao criar função', 
-        detalhes: erro.message 
-      });
+    } catch (error) {
+      next(error);
     }
   }
 
   // Listar todas as funções
-  async listar(req, res) {
+  async listar(req, res, next) {
     try {
       const { ativo } = req.query;
-      const filtro = {};
-
-      if (ativo !== undefined) {
-        filtro.ativo = ativo === 'true';
-      }
-
-      const funcoes = await Funcao.find(filtro)
-        .sort({ descricao: 1 })
-        .populate('modulosAcesso');
-
+      const funcoes = await FuncaoService.listar({ ativo });
       res.json(funcoes);
-    } catch (erro) {
-      console.error('Erro ao listar funções:', erro);
-      res.status(500).json({ 
-        erro: 'Erro ao listar funções', 
-        detalhes: erro.message 
-      });
+    } catch (error) {
+      next(error);
     }
   }
 
   // Buscar função por ID
-  async buscarPorId(req, res) {
+  async buscarPorId(req, res, next) {
     try {
       const { id } = req.params;
-      
-      const funcao = await Funcao.findById(id);
-      
-      if (!funcao) {
-        return res.status(404).json({ erro: 'Função não encontrada' });
-      }
-
+      const funcao = await FuncaoService.findById(id);
       res.json(funcao);
-    } catch (erro) {
-      console.error('Erro ao buscar função:', erro);
-      res.status(500).json({ 
-        erro: 'Erro ao buscar função', 
-        detalhes: erro.message 
-      });
+    } catch (error) {
+      next(error);
     }
   }
 
   // Buscar função por código
-  async buscarPorCodigo(req, res) {
+  async buscarPorCodigo(req, res, next) {
     try {
       const { codigo } = req.params;
-      
-      const funcao = await Funcao.findOne({ codigo });
-      
-      if (!funcao) {
-        return res.status(404).json({ erro: 'Função não encontrada' });
-      }
-
+      const funcao = await FuncaoService.buscarPorCodigo(codigo);
       res.json(funcao);
-    } catch (erro) {
-      console.error('Erro ao buscar função:', erro);
-      res.status(500).json({ 
-        erro: 'Erro ao buscar função', 
-        detalhes: erro.message 
-      });
+    } catch (error) {
+      next(error);
     }
   }
 
   // Atualizar função
-  async atualizar(req, res) {
+  async atualizar(req, res, next) {
     try {
       const { id } = req.params;
-      const { codigo, descricao, modulosAcesso, ativo } = req.body;
-
-      const funcaoExistente = await Funcao.findById(id);
-      if (!funcaoExistente) {
-        return res.status(404).json({ erro: 'Função não encontrada' });
-      }
-
-      // Verificar duplicidade de código se estiver alterando
-      if (codigo && codigo !== funcaoExistente.codigo) {
-        const outraFuncao = await Funcao.findOne({ codigo, _id: { $ne: id } });
-        if (outraFuncao) {
-          return res.status(409).json({ 
-            erro: 'Já existe outra função com este código' 
-          });
-        }
-      }
-
-      const funcaoAtualizada = await Funcao.findByIdAndUpdate(
-        id,
-        { codigo, descricao, modulosAcesso, ativo },
-        { new: true, runValidators: true }
-      );
-
-      res.json(funcaoAtualizada);
-    } catch (erro) {
-      console.error('Erro ao atualizar função:', erro);
-      res.status(500).json({ 
-        erro: 'Erro ao atualizar função', 
-        detalhes: erro.message 
-      });
+      const funcao = await FuncaoService.update(id, req.body);
+      res.json(funcao);
+    } catch (error) {
+      next(error);
     }
   }
 
   // Excluir função (soft delete)
-  async excluir(req, res) {
+  async excluir(req, res, next) {
     try {
       const { id } = req.params;
-
-      const funcao = await Funcao.findById(id);
-      if (!funcao) {
-        return res.status(404).json({ erro: 'Função não encontrada' });
-      }
-
-      // Soft delete - apenas desativa
-      funcao.ativo = false;
-      await funcao.save();
-
-      res.json({ mensagem: 'Função desativada com sucesso', funcao });
-    } catch (erro) {
-      console.error('Erro ao excluir função:', erro);
-      res.status(500).json({ 
-        erro: 'Erro ao excluir função', 
-        detalhes: erro.message 
-      });
+      const resultado = await FuncaoService.excluir(id);
+      res.json(resultado);
+    } catch (error) {
+      next(error);
     }
   }
 
   // Listar módulos disponíveis
   listarModulos(req, res) {
-    const modulos = [
-      { id: 'clientes', nome: 'Clientes' },
-      { id: 'produtos', nome: 'Produtos' },
-      { id: 'tipos-unidade', nome: 'Tipos de Unidade' },
-      { id: 'fornecedores', nome: 'Fornecedores' },
-      { id: 'notas-fiscais', nome: 'Notas Fiscais' },
-      { id: 'vendas', nome: 'Vendas' },
-      { id: 'contas-pagar', nome: 'Contas a Pagar' },
-      { id: 'funcoes', nome: 'Funções' },
-      { id: 'usuarios', nome: 'Usuários' },
-      { id: 'configuracoes', nome: 'Configurações' }
-    ];
+    const modulos = FuncaoService.listarModulos();
     res.json(modulos);
   }
 }
