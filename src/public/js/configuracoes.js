@@ -1,4 +1,5 @@
 // configuracoes.js - Script para gerenciar a tela de configurações
+// Utiliza os módulos api.js e ui.js refatorados
 
 document.addEventListener('DOMContentLoaded', async () => {
     const form = document.getElementById('formConfiguracoes');
@@ -55,12 +56,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 body: formData
             });
             
+            const data = await response.json();
+            
             if (response.ok) {
-                ui.mostrarMensagem('Configurações salvas com sucesso!');
+                ui.mostrarMensagem('Configurações salvas com sucesso!', 'success');
                 await carregarConfiguracoes();
             } else {
-                const error = await response.json();
-                ui.mostrarMensagem(error.error || 'Erro ao salvar configurações', 'error');
+                ui.mostrarMensagem(data.error || 'Erro ao salvar configurações', 'error');
             }
         } catch (error) {
             console.error('Erro:', error);
@@ -100,6 +102,7 @@ async function carregarConfiguracoesAtuais() {
         }
     } catch (error) {
         console.error('Erro ao carregar configurações:', error);
+        ui.mostrarMensagem('Erro ao carregar configurações', 'error');
     }
 }
 

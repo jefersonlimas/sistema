@@ -1,3 +1,4 @@
+<!-- Login HTML com novo layout -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistema de Gestão</title>
     <link rel="stylesheet" href="/public/css/style.css">
+    <!-- API Client deve ser carregado primeiro -->
+    <script src="/public/js/api.js"></script>
     <style>
         body {
             display: flex;
@@ -87,8 +90,13 @@
             transition: background-color 0.3s;
         }
 
-        .btn-login:hover {
+        .btn-login:hover:not(:disabled) {
             background-color: var(--cor-primaria-dark);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
         .error-message {
